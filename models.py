@@ -39,7 +39,8 @@ class Ticket:
 
     def calculate_fee(self):
         # Структура оплаты в зависимости от типа транспортного средства и типа места
-        parked_duration = time.time() - self.issue_time
+        self.exit_time = time.time()
+        parked_duration = self.exit_time - self.issue_time
         
         if self.spot_type == SpotType.HANDICAPPED:
             return 0  # Нет платы за места для инвалидов

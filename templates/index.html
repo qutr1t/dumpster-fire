@@ -5,23 +5,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Парковка</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        .slots-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            /* Space between slots */
+        }
+
+        .slot {
+            width: 100px;
+            /* Width of each slot */
+            height: 100px;
+            /* Height of each slot */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            /* Rounded corners */
+            position: relative;
+            /* For tooltip positioning */
+        }
+
+        .occupied {
+            background-color: red;
+            /* Color for occupied slots */
+        }
+
+        .available {
+            background-color: green;
+            /* Color for available slots */
+        }
+
+        .tooltip {
+            visibility: hidden;
+            /* Hidden by default */
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 120%;
+            /* Position above the slot */
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            /* Prevent line breaks */
+        }
+
+        .slot:hover .tooltip {
+            visibility: visible;
+            /* Show tooltip on hover */
+        }
+    </style>
 </head>
 
 <body>
     <h1>Парковка</h1>
 
     <h2>Слоты парковки</h2>
-    <table id="slots-table" border="1">
-        <thead>
-            <tr>
-                <th>Номер слота</th>
-                <th>Занято</th>
-                <th>Транспортное средство</th>
-                <th>Тип места</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="slots-container" id="slots-container"></div> <!-- Container for parking slots -->
 
     <h2>Парковка транспортного средства</h2>
     <form id="park-form">
@@ -42,23 +99,43 @@
         <button type="submit">Выезд</button>
     </form>
 
+
+    <button onclick="window.location.href='/history'">Посмотреть историю парковки</button>
+
     <script>
         async function fetchSlots() {
             const response = await fetch('/api/slots');
             const slots = await response.json();
-            const tbody = document.querySelector('#slots-table tbody');
-            tbody.innerHTML = '';
+            const container = document.getElementById('slots-container');
 
+            // Clear previous slots
+            container.innerHTML = '';
+
+            // Create an array to hold slots based on their slot_number
+            const slotMap = {};
+
+            // Populate the slot map
             slots.forEach(slot => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${slot.slot_number}</td>
-                    <td>${slot.is_occupied ? 'Да' : 'Нет'}</td>
-                    <td>${slot.vehicle ? slot.vehicle : 'Нет'}</td>
-                    <td>${slot.spot_type}</td>
-                `;
-                tbody.appendChild(row);
+                slotMap[slot.slot_number] = slot; // Use slot_number as key
             });
+
+            // Render slots based on their slot_number
+            for (let i = 1; i <= Object.keys(slotMap).length; i++) {
+                const slot = slotMap[i];
+                const slotDiv = document.createElement('div');
+                slotDiv.className = 'slot ' + (slot.is_occupied ? 'occupied' : 'available');
+                slotDiv.innerText = `Слот ${slot.slot_number}`;
+
+                // Create tooltip for occupied slots
+                if (slot.is_occupied) {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.innerText = `Транспортное средство:\n${slot.vehicle}`;
+                    slotDiv.appendChild(tooltip);
+                }
+
+                container.appendChild(slotDiv);
+            }
         }
 
         document.getElementById('park-form').addEventListener('submit', async (event) => {
@@ -74,7 +151,8 @@
             });
 
             if (response.ok) {
-                alert('Транспортное средство припарковано!');
+                const data = await response.json();
+                alert(`Транспортное средство припарковано! Номер слота: ${data.slot_number}`); // Show slot number
                 fetchSlots(); // Refresh the slots after parking
             } else {
                 alert('Ошибка при парковке!');

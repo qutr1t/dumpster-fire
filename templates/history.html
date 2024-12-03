@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История парковки</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>История парковки</h1>
+
+    <table id="history-table">
+        <thead>
+            <tr>
+                <th scope="col">Номер регистрации</th>
+                <th scope="col">Номер слота</th>
+                <th scope="col">Тип транспортного средства</th>
+                <th scope="col">Время парковки</th>
+                <th scope="col">Время выезда</th>
+                <th scope="col">Плата</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if history %}
+            {% for record in history %}
+            <tr>
+                <td>{{ record.registration_number }}</td>
+                <td>{{ record.slot_number }}</td>
+                <td>{{ record.vehicle_type }}</td>
+                <td>{{ record.issue_time }}</td>
+                <td>{{ record.exit_time if record.exit_time else 'В процессе' }}</td>
+                <td>{{ record.fee ~ "$" if record.fee is not none else 'Не оплачено' }}</td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="6">Нет записей в истории парковки.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <!-- Navigation Button to Index Page -->
+    <a href="/" class="button">Назад на главную страницу</a>
+
+</body>
+
+</html>

@@ -26,10 +26,7 @@ class ParkingLot:
         
         for slot in self.slots:
             # Проверяем доступность слота и соответствие типу транспортного средства
-            if not slot.is_occupied and (not is_handicapped or slot.spot_type == SpotType.HANDICAPPED):
-                if veh_type == VehicleType.MOTORCYCLE and slot.spot_type == SpotType.HANDICAPPED:
-                    print("Мотоциклы не могут парковаться на местах для инвалидов!")
-                    continue
+            if not slot.is_occupied and ((is_handicapped and slot.spot_type == SpotType.HANDICAPPED)or(not is_handicapped and slot.spot_type != SpotType.HANDICAPPED)):
                 
                 slot.occupy(vehicle)  # Занимаем слот транспортным средством
                 ticket = Ticket(vehicle, slot.slot_number, slot.spot_type)  # Создаем билет на парковку
