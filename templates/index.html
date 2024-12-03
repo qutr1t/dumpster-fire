@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Парковка</title>
+</head>
+
+<body>
+    <h1>Парковка</h1>
+
+    <h2>Слоты парковки</h2>
+    <table id="slots-table" border="1">
+        <thead>
+            <tr>
+                <th>Номер слота</th>
+                <th>Занято</th>
+                <th>Транспортное средство</th>
+                <th>Тип места</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>Парковка транспортного средства</h2>
+    <form id="park-form">
+        <input type="text" id="registration-number" placeholder="Номер регистрации" required />
+        <select id="veh-type" required>
+            <option value="CAR">Автомобиль</option>
+            <option value="VAN">Фургон</option>
+            <option value="MOTORCYCLE">Мотоцикл</option>
+        </select>
+        <label for="is-handicapped">Для инвалидов:</label>
+        <input type="checkbox" id="is-handicapped" />
+        <button type="submit">Парковать</button>
+    </form>
+
+    <h2>Выезд транспортного средства</h2>
+    <form id="exit-form">
+        <input type="text" id="exit-registration-number" placeholder="Номер регистрации" required />
+        <button type="submit">Выезд</button>
+    </form>
+
+    <script>
+        async function fetchSlots() {
+            const response = await fetch('/api/slots');
+            const slots = await response.json();
+            const tbody = document.querySelector('#slots-table tbody');
+            tbody.innerHTML = '';
+
+            slots.forEach(slot => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${slot.slot_number}</td>
+                    <td>${slot.is_occupied ? 'Да' : 'Нет'}</td>
+                    <td>${slot.vehicle ? slot.vehicle : 'Нет'}</td>
+                    <td>${slot.spot_type}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        document.getElementById('park-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const registrationNumber = document.getElementById('registration-number').value;
+            const vehType = document.getElementById('veh-type').value;
+            const isHandicapped = document.getElementById('is-handicapped').checked;
+
+            const response = await fetch('/api/park', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ registration_number: registrationNumber, veh_type: vehType, is_handicapped: isHandicapped })
+            });
+
+            if (response.ok) {
+                alert('Транспортное средство припарковано!');
+                fetchSlots(); // Refresh the slots after parking
+            } else {
+                alert('Ошибка при парковке!');
+            }
+        });
+
+        document.getElementById('exit-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const registrationNumber = document.getElementById('exit-registration-number').value;
+
+            const response = await fetch('/api/exit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ registration_number: registrationNumber })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert(`Транспортное средство покинуло парковку. Плата: $${data.fee}`);
+                fetchSlots(); // Refresh the slots after exit
+            } else {
+                alert('Ошибка при выезде!');
+            }
+        });
+
+        // Initial fetch of slots when the page loads
+        window.onload = fetchSlots;
+    </script>
+
+</body>
+
+</html>
