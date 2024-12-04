@@ -6,60 +6,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>История парковки</title>
     <style>
+        /* Стили для таблицы */
         table {
             width: 100%;
+            /* Ширина таблицы 100% от родительского элемента */
             border-collapse: collapse;
+            /* Убирает двойные границы между ячейками */
         }
 
         th,
         td {
             border: 1px solid #ddd;
+            /* Граница ячеек */
             padding: 8px;
+            /* Отступ внутри ячеек */
             text-align: left;
+            /* Выравнивание текста по левому краю */
         }
 
         th {
             background-color: #f2f2f2;
+            /* Цвет фона заголовков таблицы */
         }
     </style>
+    <!-- Кнопка навигации для возврата на главную страницу -->
+    <a href="/" class="button">Назад на главную страницу</a>
 </head>
 
 <body>
-    <h1>История парковки</h1>
+    <h1>История парковки</h1> <!-- Заголовок страницы -->
 
-    <table id="history-table">
+    <table id="history-table"> <!-- Таблица для отображения истории парковки -->
         <thead>
             <tr>
-                <th scope="col">Номер регистрации</th>
-                <th scope="col">Номер слота</th>
+                <th scope="col">Номер регистрации</th> <!-- Заголовок столбца для номера регистрации -->
+                <th scope="col">Номер слота</th> <!-- Заголовок столбца для номера слота -->
                 <th scope="col">Тип транспортного средства</th>
-                <th scope="col">Время парковки</th>
-                <th scope="col">Время выезда</th>
-                <th scope="col">Плата</th>
+                <!-- Заголовок столбца для типа транспортного средства -->
+                <th scope="col">Время парковки</th> <!-- Заголовок столбца для времени парковки -->
+                <th scope="col">Время выезда</th> <!-- Заголовок столбца для времени выезда -->
+                <th scope="col">Плата</th> <!-- Заголовок столбца для платы за парковку -->
             </tr>
         </thead>
         <tbody>
-            {% if history %}
-            {% for record in history %}
+            {% if history %} <!-- Проверка, есть ли записи в истории -->
+            {% for record in history %} <!-- Цикл по всем записям истории -->
             <tr>
-                <td>{{ record.registration_number }}</td>
-                <td>{{ record.slot_number }}</td>
-                <td>{{ record.vehicle_type }}</td>
-                <td>{{ record.issue_time }}</td>
+                <td>{{ record.registration_number }}</td> <!-- Номер регистрации транспортного средства -->
+                <td>{{ record.slot_number }}</td> <!-- Номер слота, где было припарковано транспортное средство -->
+                <td>{{ record.vehicle_type }}</td> <!-- Тип транспортного средства -->
+                <td>{{ record.issue_time }}</td> <!-- Время выдачи билета на парковку -->
                 <td>{{ record.exit_time if record.exit_time else 'В процессе' }}</td>
+                <!-- Время выезда или 'В процессе', если еще не выехал -->
                 <td>{{ record.fee ~ "$" if record.fee is not none else 'Не оплачено' }}</td>
+                <!-- Плата за парковку или 'Не оплачено', если еще не оплачено -->
             </tr>
             {% endfor %}
             {% else %}
             <tr>
-                <td colspan="6">Нет записей в истории парковки.</td>
+                <td colspan="6">Нет записей в истории парковки.</td> <!-- Сообщение, если нет записей в истории -->
             </tr>
             {% endif %}
         </tbody>
     </table>
-
-    <!-- Navigation Button to Index Page -->
-    <a href="/" class="button">Назад на главную страницу</a>
 
 </body>
 

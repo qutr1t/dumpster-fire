@@ -22,11 +22,16 @@ class ParkingLot:
         self.tickets = {}  # Словарь для хранения билетов
 
     def park_vehicle(self, registration_number, veh_type, is_handicapped=False):
+        # Проверяем, есть ли уже билет на это транспортное средство
+        if registration_number in self.tickets:
+            print("Это транспортное средство уже заняло место на парковке!")
+            return -2
+        
         vehicle = Vehicle(registration_number, veh_type, is_handicapped)  # Создаем объект транспортного средства
         
         for slot in self.slots:
             # Проверяем доступность слота и соответствие типу транспортного средства
-            if not slot.is_occupied and ((is_handicapped and slot.spot_type == SpotType.HANDICAPPED)or(not is_handicapped and slot.spot_type != SpotType.HANDICAPPED)):
+            if not slot.is_occupied and ((is_handicapped and slot.spot_type == SpotType.HANDICAPPED) or (not is_handicapped and slot.spot_type != SpotType.HANDICAPPED)):
                 
                 slot.occupy(vehicle)  # Занимаем слот транспортным средством
                 ticket = Ticket(vehicle, slot.slot_number, slot.spot_type)  # Создаем билет на парковку
@@ -35,7 +40,7 @@ class ParkingLot:
                 return ticket
         
         print("Парковка заполнена или транспортное средство не может занять это место!")
-        return None
+        return -1
 
     def exit_vehicle(self, registration_number):
         if registration_number in self.tickets:
@@ -49,4 +54,3 @@ class ParkingLot:
         else:
             print("Такое транспортное средство не найдено на парковке!")
             return None
-

@@ -9,6 +9,7 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f4f4f4;
         }
 
         h1,
@@ -17,59 +18,94 @@
         }
 
         .slots-container {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            /* Используем сетку для размещения слотов */
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            /* Автоматическая подстройка колонок */
             gap: 10px;
-            /* Space between slots */
+            /* Промежуток между слотами */
+            margin-bottom: 20px;
         }
 
         .slot {
-            width: 100px;
-            /* Width of each slot */
             height: 100px;
-            /* Height of each slot */
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
             font-weight: bold;
             border-radius: 5px;
-            /* Rounded corners */
             position: relative;
-            /* For tooltip positioning */
+            /* Для позиционирования подсказки */
+            transition: background-color 0.3s ease;
+            /* Плавный переход цвета фона */
         }
 
         .occupied {
             background-color: red;
-            /* Color for occupied slots */
+            /* Цвет для занятых слотов */
         }
 
         .available {
             background-color: green;
-            /* Color for available slots */
+            /* Цвет для свободных слотов */
         }
 
         .tooltip {
             visibility: hidden;
-            /* Hidden by default */
+            /* Подсказка скрыта по умолчанию */
             background-color: rgba(0, 0, 0, 0.7);
             color: #fff;
             text-align: center;
             border-radius: 5px;
             padding: 5px;
             position: absolute;
+            /* Позиционирование относительно слота */
             z-index: 1;
+            /* Уровень наложения над другими элементами */
             bottom: 120%;
-            /* Position above the slot */
+            /* Позиция над слотом */
             left: 50%;
             transform: translateX(-50%);
+            /* Центрирование подсказки */
             white-space: nowrap;
-            /* Prevent line breaks */
+            /* Запрет на перенос строк в подсказке */
         }
 
         .slot:hover .tooltip {
             visibility: visible;
-            /* Show tooltip on hover */
+            /* Показываем подсказку при наведении */
+        }
+
+        form {
+            margin-bottom: 20px;
+            /* Промежуток между формами */
+        }
+
+        input[type="text"],
+        select {
+            padding: 10px;
+            margin-right: 10px;
+            /* Промежуток между полями ввода */
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            /* Граница для полей ввода */
+        }
+
+        button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #007BFF;
+            /* Основной цвет кнопки */
+            color: white;
+            cursor: pointer;
+            /* Указатель при наведении на кнопку */
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            /* Темный цвет кнопки при наведении */
         }
     </style>
 </head>
@@ -78,7 +114,7 @@
     <h1>Парковка</h1>
 
     <h2>Слоты парковки</h2>
-    <div class="slots-container" id="slots-container"></div> <!-- Container for parking slots -->
+    <div class="slots-container" id="slots-container"></div> <!-- Контейнер для слотов парковки -->
 
     <h2>Парковка транспортного средства</h2>
     <form id="park-form">
@@ -90,43 +126,43 @@
         </select>
         <label for="is-handicapped">Для инвалидов:</label>
         <input type="checkbox" id="is-handicapped" />
-        <button type="submit">Парковать</button>
+        <button type="submit">Парковать</button> <!-- Кнопка для парковки -->
     </form>
 
     <h2>Выезд транспортного средства</h2>
     <form id="exit-form">
         <input type="text" id="exit-registration-number" placeholder="Номер регистрации" required />
-        <button type="submit">Выезд</button>
+        <button type="submit">Выезд</button> <!-- Кнопка для выезда -->
     </form>
 
-
     <button onclick="window.location.href='/history'">Посмотреть историю парковки</button>
+    <!-- Кнопка для просмотра истории -->
 
     <script>
         async function fetchSlots() {
-            const response = await fetch('/api/slots');
+            const response = await fetch('/api/slots'); // Запрос на получение слотов
             const slots = await response.json();
             const container = document.getElementById('slots-container');
 
-            // Clear previous slots
+            // Очистка предыдущих слотов
             container.innerHTML = '';
 
-            // Create an array to hold slots based on their slot_number
+            // Создаем объект для хранения слотов по их номеру
             const slotMap = {};
 
-            // Populate the slot map
+            // Заполняем карту слотов
             slots.forEach(slot => {
-                slotMap[slot.slot_number] = slot; // Use slot_number as key
+                slotMap[slot.slot_number] = slot; // Используем номер слота как ключ
             });
 
-            // Render slots based on their slot_number
+            // Отображаем слоты на основе их номера
             for (let i = 1; i <= Object.keys(slotMap).length; i++) {
                 const slot = slotMap[i];
                 const slotDiv = document.createElement('div');
                 slotDiv.className = 'slot ' + (slot.is_occupied ? 'occupied' : 'available');
                 slotDiv.innerText = `Слот ${slot.slot_number}`;
 
-                // Create tooltip for occupied slots
+                // Создаем подсказку для занятых слотов
                 if (slot.is_occupied) {
                     const tooltip = document.createElement('div');
                     tooltip.className = 'tooltip';
@@ -134,17 +170,17 @@
                     slotDiv.appendChild(tooltip);
                 }
 
-                container.appendChild(slotDiv);
+                container.appendChild(slotDiv); // Добавляем слот в контейнер
             }
         }
 
         document.getElementById('park-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
+            event.preventDefault(); // Предотвращаем стандартное поведение формы
             const registrationNumber = document.getElementById('registration-number').value;
             const vehType = document.getElementById('veh-type').value;
             const isHandicapped = document.getElementById('is-handicapped').checked;
 
-            const response = await fetch('/api/park', {
+            const response = await fetch('/api/park', { // Запрос на парковку
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ registration_number: registrationNumber, veh_type: vehType, is_handicapped: isHandicapped })
@@ -152,18 +188,20 @@
 
             if (response.ok) {
                 const data = await response.json();
-                alert(`Транспортное средство припарковано! Номер слота: ${data.slot_number}`); // Show slot number
-                fetchSlots(); // Refresh the slots after parking
+                alert(`Транспортное средство припарковано! Номер слота: ${data.slot_number}`); // Сообщение о парковке
+                fetchSlots(); // Обновление слотов после парковки
+                document.getElementById('park-form').reset(); // Сброс формы
             } else {
-                alert('Ошибка при парковке!');
+                const data = await response.json();
+                alert(data.message); // Сообщение об ошибке
             }
         });
 
         document.getElementById('exit-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
+            event.preventDefault(); // Предотвращаем стандартное поведение формы
             const registrationNumber = document.getElementById('exit-registration-number').value;
 
-            const response = await fetch('/api/exit', {
+            const response = await fetch('/api/exit', { // Запрос на выезд
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ registration_number: registrationNumber })
@@ -171,15 +209,17 @@
 
             if (response.ok) {
                 const data = await response.json();
-                alert(`Транспортное средство покинуло парковку. Плата: $${data.fee}`);
-                fetchSlots(); // Refresh the slots after exit
+                alert(`Транспортное средство покинуло парковку. Плата: $${data.fee}`); // Сообщение о выезде и плате
+                fetchSlots(); // Обновление слотов после выезда
+                document.getElementById('exit-form').reset(); // Сброс формы
             } else {
-                alert('Ошибка при выезде!');
+                alert('Ошибка при выезде!'); // Сообщение об ошибке
             }
         });
 
-        // Initial fetch of slots when the page loads
+        // Первоначальная загрузка слотов при загрузке страницы
         window.onload = fetchSlots;
+
     </script>
 
 </body>
