@@ -7,7 +7,7 @@ import math
 # Инициализация приложения Flask
 app = Flask(__name__)
 # Создание парковки с 5 местами
-parking_lot = ParkingLot(5)
+parking_lot = ParkingLot(100)
 
 # Хранение истории парковки
 parking_history = []

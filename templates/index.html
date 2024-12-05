@@ -111,11 +111,8 @@
 </head>
 
 <body>
-    <h1>Парковка</h1>
-
-    <h2>Слоты парковки</h2>
-    <div class="slots-container" id="slots-container"></div> <!-- Контейнер для слотов парковки -->
-
+    <button onclick="window.location.href='/history'">Посмотреть историю парковки</button>
+    <!-- Кнопка для просмотра истории -->
     <h2>Парковка транспортного средства</h2>
     <form id="park-form">
         <input type="text" id="registration-number" placeholder="Номер регистрации" required />
@@ -134,9 +131,12 @@
         <input type="text" id="exit-registration-number" placeholder="Номер регистрации" required />
         <button type="submit">Выезд</button> <!-- Кнопка для выезда -->
     </form>
+    <h2>Слоты парковки</h2>
+    <div class="slots-container" id="slots-container"></div> <!-- Контейнер для слотов парковки -->
 
-    <button onclick="window.location.href='/history'">Посмотреть историю парковки</button>
-    <!-- Кнопка для просмотра истории -->
+
+
+
 
     <script>
         async function fetchSlots() {
