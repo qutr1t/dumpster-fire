@@ -1,12 +1,14 @@
 import math
 from models import Vehicle, ParkingSlot, Ticket
 from enums import SpotType, VehicleType
+import time
 
 # Класс, представляющий парковку
 class ParkingLot:
     def __init__(self, capacity):
         self.capacity = capacity  # Вместимость парковки
         self.slots = []  # Список парковочных мест
+        self.parking_history = []
         
         # Вычисляем количество мест для инвалидов (30% от общей вместимости)
         num_handicapped_spots = max(1, math.ceil(capacity * 0.3))  # Минимум одно место для инвалидов
@@ -35,6 +37,14 @@ class ParkingLot:
                 
                 slot.occupy(vehicle)  # Занимаем слот транспортным средством
                 ticket = Ticket(vehicle, slot.slot_number, slot.spot_type)  # Создаем билет на парковку
+                self.parking_history.append({
+                    'registration_number': registration_number,
+                    'slot_number': ticket.slot_number,
+                    'vehicle_type': ticket.vehicle.type.value,
+                    'issue_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ticket.issue_time)),
+                    'exit_time': None,
+                    'fee': None
+                })
                 self.tickets[registration_number] = ticket  # Сохраняем билет по номеру регистрации
                 print(f"Выдан билет: Место {slot.slot_number}, {vehicle}, Тип места: {slot.spot_type.value}")
                 return ticket
@@ -50,7 +60,13 @@ class ParkingLot:
             slot.vacate()  # Освобождаем место
             del self.tickets[registration_number]  # Удаляем билет из системы
             print(f"Транспортное средство с регистрацией {ticket.vehicle.registration_number} покинуло место {ticket.slot_number}. Плата: ${fee:.2f}")
+            for entry in self.parking_history:
+                if entry['registration_number'] == registration_number and entry['exit_time'] is None:
+                    entry['fee'] = fee
+                    entry['exit_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ticket.exit_time))
             return fee
         else:
             print("Такое транспортное средство не найдено на парковке!")
             return None
+    def get_parking_history(self):
+        return self.parking_history  # Метод для получения истории парковки
