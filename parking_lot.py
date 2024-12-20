@@ -8,7 +8,6 @@ class ParkingLot:
     def __init__(self, capacity):
         self.capacity = capacity  # Вместимость парковки
         self.slots = []  # Список парковочных мест
-        self.parking_history = []
         
         # Вычисляем количество мест для инвалидов (30% от общей вместимости)
         num_handicapped_spots = max(1, math.ceil(capacity * 0.3))  # Минимум одно место для инвалидов
